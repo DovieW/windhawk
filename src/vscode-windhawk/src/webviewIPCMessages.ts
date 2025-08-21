@@ -351,6 +351,81 @@ export type ExitEditorModeReplyData = {
   succeeded: boolean;
 };
 
+export type GetProfilesReplyData = {
+  profiles: Record<string, any>;
+  activeProfiles: string[];
+  mergeConfigs: boolean;
+};
+
+export type CreateProfileData = {
+  profileId: string;
+  name: string;
+  captureCurrentMods?: boolean;
+};
+
+export type CreateProfileReplyData = {
+  profileId: string;
+  succeeded: boolean;
+};
+
+export type DeleteProfileData = {
+  profileId: string;
+};
+
+export type DeleteProfileReplyData = {
+  profileId: string;
+  succeeded: boolean;
+};
+
+export type RenameProfileData = {
+  profileId: string;
+  newName: string;
+};
+
+export type RenameProfileReplyData = {
+  profileId: string;
+  succeeded: boolean;
+};
+
+export type SetActiveProfilesData = {
+  profileIds: string[];
+  mergeConfigs?: boolean;
+};
+
+export type SetActiveProfilesReplyData = {
+  profileIds: string[];
+  succeeded: boolean;
+};
+
+export type CaptureConfigToProfileData = {
+  profileId: string;
+};
+
+export type CaptureConfigToProfileReplyData = {
+  profileId: string;
+  succeeded: boolean;
+};
+
+export type ExportProfileData = {
+  profileId: string;
+};
+
+export type ExportProfileReplyData = {
+  profileId: string;
+  profile: any | null;
+  succeeded: boolean;
+};
+
+export type ImportProfileData = {
+  profileId: string;
+  profile: any;
+};
+
+export type ImportProfileReplyData = {
+  profileId: string;
+  succeeded: boolean;
+};
+
 ////////////////////////////////////////////////////////////
 // Events.
 
