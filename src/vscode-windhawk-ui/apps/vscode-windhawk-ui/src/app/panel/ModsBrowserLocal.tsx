@@ -1,6 +1,6 @@
-import { faHdd, faStar } from '@fortawesome/free-solid-svg-icons';
+import { faHdd, faStar, faUser } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Button, Empty, Modal, Spin } from 'antd';
+import { Button, Empty, Modal, Spin, Space, Card } from 'antd';
 import { produce } from 'immer';
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -18,6 +18,7 @@ import {
   useInstallMod,
   useUpdateInstalledModsDetails,
   useUpdateModRating,
+  useGetProfiles,
 } from '../webviewIPC';
 import {
   ModConfig,
@@ -191,10 +192,22 @@ function ModsBrowserLocal({ ContentWrapper }: Props) {
     }, [])
   );
 
+  // Profile state and hooks
+  const [profiles, setProfiles] = useState<Record<string, any>>({});
+  const [activeProfiles, setActiveProfiles] = useState<string[]>([]);
+
+  const { getProfiles } = useGetProfiles(
+    useCallback((data) => {
+      setProfiles(data.profiles || {});
+      setActiveProfiles(data.activeProfiles || []);
+    }, [])
+  );
+
   useEffect(() => {
     getInstalledMods({});
     getFeaturedMods({});
-  }, [getInstalledMods, getFeaturedMods]);
+    getProfiles({});
+  }, [getInstalledMods, getFeaturedMods, getProfiles]);
 
   useUpdateInstalledModsDetails(
     useCallback(
@@ -381,6 +394,33 @@ function ModsBrowserLocal({ ContentWrapper }: Props) {
               ))}
             </ModsGrid>
           )}
+          
+          <SectionText>
+            <SectionIcon icon={faUser} /> {t('home.profiles.title')}
+          </SectionText>
+          <Card style={{ marginBottom: 20 }}>
+            <Space direction="vertical" size="small" style={{ width: '100%' }}>
+              <div>
+                <strong>{t('home.profiles.activeLabel')}</strong>{' '}
+                {activeProfiles.length === 0 
+                  ? t('home.profiles.none')
+                  : activeProfiles.length === 1 
+                    ? (profiles[activeProfiles[0]]?.name || activeProfiles[0])
+                    : t('home.profiles.multiple', { count: activeProfiles.length })
+                }
+              </div>
+              <div>
+                <strong>{t('home.profiles.totalLabel')}</strong>{' '}
+                {t('home.profiles.totalCount', { count: Object.keys(profiles).length })}
+              </div>
+              <Space>
+                <Button onClick={() => replace('/profiles')}>
+                  {t('home.profiles.manage')}
+                </Button>
+              </Space>
+            </Space>
+          </Card>
+
           <SectionText>
             <SectionIcon icon={faStar} /> {t('home.featuredMods.title')}
           </SectionText>

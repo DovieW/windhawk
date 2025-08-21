@@ -1,6 +1,29 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
+type ProfileModConfig = {
+	version?: string,
+	disabled?: boolean,
+	settings?: Record<string, any>,
+	config?: {
+		loggingEnabled?: boolean,
+		debugLoggingEnabled?: boolean,
+		include?: string[],
+		exclude?: string[],
+		includeCustom?: string[],
+		excludeCustom?: string[],
+		includeExcludeCustomOnly?: boolean,
+		patternsMatchCriticalSystemProcesses?: boolean,
+		architecture?: string[]
+	}
+};
+
+type ConfigProfile = {
+	name: string,
+	created: number,
+	mods: Record<string, ProfileModConfig>
+};
+
 type UserProfileType = {
 	id?: string,
 	os?: string,
@@ -13,10 +36,17 @@ type UserProfileType = {
 		disabled: boolean,
 		rating: number,
 		latestVersion: string
-	}> | undefined>
+	}> | undefined>,
+	profiles?: {
+		list: Record<string, ConfigProfile>,
+		active: string[],
+		mergeConfigs: boolean
+	}
 };
 
 type onFileModified = (mtimeMs: number) => void;
+
+export type { ProfileModConfig, ConfigProfile };
 
 export class UserProfile {
 	private userProfilePath: string;
@@ -48,6 +78,11 @@ export class UserProfile {
 
 		userProfile.app = userProfile.app || {};
 		userProfile.mods = userProfile.mods || {};
+		userProfile.profiles = userProfile.profiles || {
+			list: {},
+			active: [],
+			mergeConfigs: false
+		};
 
 		this.userProfile = userProfile;
 	}
@@ -58,6 +93,10 @@ export class UserProfile {
 
 	public getModRating(modId: string) {
 		return this.userProfile.mods[modId]?.rating ?? null;
+	}
+
+	public getModVersion(modId: string) {
+		return this.userProfile.mods[modId]?.version ?? null;
 	}
 
 	public getModLatestVersion(modId: string) {
@@ -108,6 +147,109 @@ export class UserProfile {
 		}
 
 		return updated;
+	}
+
+	// Profile management methods
+	public getProfiles(): Record<string, ConfigProfile> {
+		return this.userProfile.profiles?.list || {};
+	}
+
+	public getActiveProfiles(): string[] {
+		return this.userProfile.profiles?.active || [];
+	}
+
+	public isMergeConfigsEnabled(): boolean {
+		return this.userProfile.profiles?.mergeConfigs || false;
+	}
+
+	public setMergeConfigs(merge: boolean) {
+		if (!this.userProfile.profiles) {
+			this.userProfile.profiles = { list: {}, active: [], mergeConfigs: false };
+		}
+		this.userProfile.profiles.mergeConfigs = merge;
+	}
+
+	public createProfile(profileId: string, name: string, modConfigs?: Record<string, ProfileModConfig>): boolean {
+		if (!this.userProfile.profiles) {
+			this.userProfile.profiles = { list: {}, active: [], mergeConfigs: false };
+		}
+
+		if (this.userProfile.profiles.list[profileId]) {
+			return false; // Profile already exists
+		}
+
+		this.userProfile.profiles.list[profileId] = {
+			name,
+			created: Date.now(),
+			mods: modConfigs || {}
+		};
+		return true;
+	}
+
+	public deleteProfile(profileId: string): boolean {
+		if (!this.userProfile.profiles?.list[profileId]) {
+			return false;
+		}
+
+		delete this.userProfile.profiles.list[profileId];
+		
+		// Remove from active profiles if present
+		const activeIndex = this.userProfile.profiles.active.indexOf(profileId);
+		if (activeIndex > -1) {
+			this.userProfile.profiles.active.splice(activeIndex, 1);
+		}
+
+		return true;
+	}
+
+	public renameProfile(profileId: string, newName: string): boolean {
+		if (!this.userProfile.profiles?.list[profileId]) {
+			return false;
+		}
+
+		this.userProfile.profiles.list[profileId].name = newName;
+		return true;
+	}
+
+	public setActiveProfiles(profileIds: string[]): boolean {
+		if (!this.userProfile.profiles) {
+			this.userProfile.profiles = { list: {}, active: [], mergeConfigs: false };
+		}
+
+		// Validate all profile IDs exist
+		for (const profileId of profileIds) {
+			if (!this.userProfile.profiles.list[profileId]) {
+				return false;
+			}
+		}
+
+		this.userProfile.profiles.active = [...profileIds];
+		return true;
+	}
+
+	public captureCurrentConfigToProfile(profileId: string, modConfigs: Record<string, any>): boolean {
+		if (!this.userProfile.profiles?.list[profileId]) {
+			return false;
+		}
+
+		this.userProfile.profiles.list[profileId].mods = modConfigs;
+		return true;
+	}
+
+	public exportProfile(profileId: string): ConfigProfile | null {
+		return this.userProfile.profiles?.list[profileId] || null;
+	}
+
+	public importProfile(profileId: string, profile: ConfigProfile): boolean {
+		if (!this.userProfile.profiles) {
+			this.userProfile.profiles = { list: {}, active: [], mergeConfigs: false };
+		}
+
+		this.userProfile.profiles.list[profileId] = {
+			...profile,
+			created: Date.now() // Update creation time on import
+		};
+		return true;
 	}
 
 	public write(asExternalUpdate = false) {

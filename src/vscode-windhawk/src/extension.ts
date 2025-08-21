@@ -34,7 +34,14 @@ import {
 	SetModSettingsData,
 	UpdateAppSettingsData,
 	UpdateModConfigData,
-	UpdateModRatingData
+	UpdateModRatingData,
+	CreateProfileData,
+	DeleteProfileData,
+	RenameProfileData,
+	SetActiveProfilesData,
+	CaptureConfigToProfileData,
+	ExportProfileData,
+	ImportProfileData
 } from './webviewIPCMessages';
 
 type AppUtils = {
@@ -1135,6 +1142,266 @@ class WindhawkPanel {
 			} catch (e) {
 				reportException(e);
 			}
+		},
+		getProfiles: message => {
+			let profiles = {};
+			let activeProfiles: string[] = [];
+			let mergeConfigs = false;
+
+			try {
+				const userProfile = this._utils.userProfile.read();
+				profiles = userProfile.getProfiles();
+				activeProfiles = userProfile.getActiveProfiles();
+				mergeConfigs = userProfile.isMergeConfigsEnabled();
+			} catch (e) {
+				reportException(e);
+			}
+
+			this._panel.webview.postMessage({
+				type: 'reply',
+				command: 'getProfiles',
+				messageId: message.messageId,
+				data: {
+					profiles,
+					activeProfiles,
+					mergeConfigs
+				}
+			});
+		},
+		createProfile: message => {
+			const data: CreateProfileData = message.data;
+			let succeeded = false;
+
+			try {
+				const userProfile = this._utils.userProfile.read();
+				
+				let modConfigs: Record<string, any> = {};
+				if (data.captureCurrentMods) {
+					// Capture current mod configurations
+					const modsConfig = this._utils.modConfig.getConfigOfInstalled();
+					
+					for (const [modId, config] of Object.entries(modsConfig)) {
+						if (config) {
+							try {
+								const settings = this._utils.modConfig.getModSettings(modId);
+								modConfigs[modId] = {
+									version: userProfile.getModVersion(modId),
+									disabled: config.disabled,
+									settings,
+									config: {
+										loggingEnabled: config.loggingEnabled,
+										debugLoggingEnabled: config.debugLoggingEnabled,
+										include: config.include,
+										exclude: config.exclude,
+										includeCustom: config.includeCustom,
+										excludeCustom: config.excludeCustom,
+										includeExcludeCustomOnly: config.includeExcludeCustomOnly,
+										patternsMatchCriticalSystemProcesses: config.patternsMatchCriticalSystemProcesses,
+										architecture: config.architecture
+									}
+								};
+							} catch (e) {
+								// Skip mods with errors
+							}
+						}
+					}
+				}
+
+				succeeded = userProfile.createProfile(data.profileId, data.name, modConfigs);
+				if (succeeded) {
+					userProfile.write();
+				}
+			} catch (e) {
+				reportException(e);
+			}
+
+			this._panel.webview.postMessage({
+				type: 'reply',
+				command: 'createProfile',
+				messageId: message.messageId,
+				data: {
+					profileId: data.profileId,
+					succeeded
+				}
+			});
+		},
+		deleteProfile: message => {
+			const data: DeleteProfileData = message.data;
+			let succeeded = false;
+
+			try {
+				const userProfile = this._utils.userProfile.read();
+				succeeded = userProfile.deleteProfile(data.profileId);
+				if (succeeded) {
+					userProfile.write();
+				}
+			} catch (e) {
+				reportException(e);
+			}
+
+			this._panel.webview.postMessage({
+				type: 'reply',
+				command: 'deleteProfile',
+				messageId: message.messageId,
+				data: {
+					profileId: data.profileId,
+					succeeded
+				}
+			});
+		},
+		renameProfile: message => {
+			const data: RenameProfileData = message.data;
+			let succeeded = false;
+
+			try {
+				const userProfile = this._utils.userProfile.read();
+				succeeded = userProfile.renameProfile(data.profileId, data.newName);
+				if (succeeded) {
+					userProfile.write();
+				}
+			} catch (e) {
+				reportException(e);
+			}
+
+			this._panel.webview.postMessage({
+				type: 'reply',
+				command: 'renameProfile',
+				messageId: message.messageId,
+				data: {
+					profileId: data.profileId,
+					succeeded
+				}
+			});
+		},
+		setActiveProfiles: message => {
+			const data: SetActiveProfilesData = message.data;
+			let succeeded = false;
+
+			try {
+				const userProfile = this._utils.userProfile.read();
+				succeeded = userProfile.setActiveProfiles(data.profileIds);
+				if (succeeded && data.mergeConfigs !== undefined) {
+					userProfile.setMergeConfigs(data.mergeConfigs);
+				}
+				if (succeeded) {
+					userProfile.write();
+				}
+			} catch (e) {
+				reportException(e);
+			}
+
+			this._panel.webview.postMessage({
+				type: 'reply',
+				command: 'setActiveProfiles',
+				messageId: message.messageId,
+				data: {
+					profileIds: data.profileIds,
+					succeeded
+				}
+			});
+		},
+		captureConfigToProfile: message => {
+			const data: CaptureConfigToProfileData = message.data;
+			let succeeded = false;
+
+			try {
+				const userProfile = this._utils.userProfile.read();
+				
+				// Capture current mod configurations
+				const modsConfig = this._utils.modConfig.getConfigOfInstalled();
+				const modConfigs: Record<string, any> = {};
+				
+				for (const [modId, config] of Object.entries(modsConfig)) {
+					if (config) {
+						try {
+							const settings = this._utils.modConfig.getModSettings(modId);
+							modConfigs[modId] = {
+								version: userProfile.getModVersion(modId),
+								disabled: config.disabled,
+								settings,
+								config: {
+									loggingEnabled: config.loggingEnabled,
+									debugLoggingEnabled: config.debugLoggingEnabled,
+									include: config.include,
+									exclude: config.exclude,
+									includeCustom: config.includeCustom,
+									excludeCustom: config.excludeCustom,
+									includeExcludeCustomOnly: config.includeExcludeCustomOnly,
+									patternsMatchCriticalSystemProcesses: config.patternsMatchCriticalSystemProcesses,
+									architecture: config.architecture
+								}
+							};
+						} catch (e) {
+							// Skip mods with errors
+						}
+					}
+				}
+
+				succeeded = userProfile.captureCurrentConfigToProfile(data.profileId, modConfigs);
+				if (succeeded) {
+					userProfile.write();
+				}
+			} catch (e) {
+				reportException(e);
+			}
+
+			this._panel.webview.postMessage({
+				type: 'reply',
+				command: 'captureConfigToProfile',
+				messageId: message.messageId,
+				data: {
+					profileId: data.profileId,
+					succeeded
+				}
+			});
+		},
+		exportProfile: message => {
+			const data: ExportProfileData = message.data;
+			let profile = null;
+			let succeeded = false;
+
+			try {
+				const userProfile = this._utils.userProfile.read();
+				profile = userProfile.exportProfile(data.profileId);
+				succeeded = profile !== null;
+			} catch (e) {
+				reportException(e);
+			}
+
+			this._panel.webview.postMessage({
+				type: 'reply',
+				command: 'exportProfile',
+				messageId: message.messageId,
+				data: {
+					profileId: data.profileId,
+					profile,
+					succeeded
+				}
+			});
+		},
+		importProfile: message => {
+			const data: ImportProfileData = message.data;
+			let succeeded = false;
+
+			try {
+				const userProfile = this._utils.userProfile.read();
+				succeeded = userProfile.importProfile(data.profileId, data.profile);
+				if (succeeded) {
+					userProfile.write();
+				}
+			} catch (e) {
+				reportException(e);
+			}
+
+			this._panel.webview.postMessage({
+				type: 'reply',
+				command: 'importProfile',
+				messageId: message.messageId,
+				data: {
+					profileId: data.profileId,
+					succeeded
+				}
+			});
 		}
 	};
 
