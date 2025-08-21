@@ -144,6 +144,15 @@
       "title": "Installed Mods",
       "noMods": "No mods are installed"
     },
+    "profiles": {
+      "title": "Configuration Profiles",
+      "activeLabel": "Active:",
+      "totalLabel": "Total:",
+      "none": "(none)",
+      "multiple": "{{count}} profiles",
+      "totalCount": "{{count}} profiles",
+      "manage": "Manage Profiles"
+    },
     "featuredMods": {
       "title": "Featured Mods",
       "noMods": "There are no featured mods that weren't installed yet",
