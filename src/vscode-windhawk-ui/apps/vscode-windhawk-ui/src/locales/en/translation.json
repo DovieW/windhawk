@@ -17,7 +17,13 @@
     "home": "Home",
     "explore": "Explore",
     "settings": "Settings",
-    "about": "About"
+    "about": "About",
+    "profiles": {
+      "label": "Profile",
+      "none": "(none)",
+      "multiple": "{{count}} profiles",
+      "manage": "Manage Profiles..."
+    }
   },
   "mod": {
     "updateAvailable": "Update available",
@@ -273,6 +279,56 @@
   "modPreview": {
     "actionUnavailable": "Action is not available in preview mode",
     "notCompiled": "Mod needs to be compiled before it can be previewed"
+  },
+  "profiles": {
+    "title": "Configuration Profiles",
+    "description": "Manage your mod configuration profiles to quickly switch between different setups.",
+    "activeTitle": "Active Profiles",
+    "mergeEnabled": "Merge",
+    "mergeDisabled": "Override",
+    "mergeDescription": "Merge configurations when multiple profiles are active",
+    "listTitle": "Available Profiles",
+    "empty": "No profiles created yet. Create your first profile to get started.",
+    "create": "Create Profile",
+    "import": "Import Profile",
+    "export": "Export",
+    "delete": "Delete",
+    "rename": "Rename",
+    "actions": "Actions",
+    "captureConfig": "Capture Current Config",
+    "createTitle": "Create New Profile",
+    "renameTitle": "Rename Profile",
+    "importTitle": "Import Profile",
+    "nameLabel": "Profile Name",
+    "namePlaceholder": "Enter profile name",
+    "nameRequired": "Profile name is required",
+    "captureCurrentMods": "Capture current mod configurations",
+    "importDataLabel": "Profile JSON Data",
+    "importDataPlaceholder": "Paste exported profile JSON data here",
+    "modCount": "Mods: {{count}}",
+    "created": "Created: {{date}}",
+    "deleteConfirm": "Delete Profile",
+    "deleteMessage": "Are you sure you want to delete this profile?",
+    "created_one": "Profile created successfully",
+    "created_other": "Profile created successfully",
+    "deleted": "Profile deleted successfully",
+    "renamed": "Profile renamed successfully",
+    "activeUpdated": "Active profiles updated",
+    "captured": "Configuration captured to profile",
+    "exported": "Profile exported successfully",
+    "imported": "Profile imported successfully",
+    "createFailed": "Failed to create profile",
+    "deleteFailed": "Failed to delete profile",
+    "renameFailed": "Failed to rename profile",
+    "activeUpdateFailed": "Failed to update active profiles",
+    "captureFailed": "Failed to capture configuration",
+    "exportFailed": "Failed to export profile",
+    "importFailed": "Failed to import profile",
+    "invalidJson": "Invalid JSON data"
+  },
+  "common": {
+    "cancel": "Cancel",
+    "ok": "OK"
   },
   "sidebar": {
     "modId": "Mod identifier",

@@ -7,6 +7,7 @@ import CreateNewModButton from './CreateNewModButton';
 import ModPreview from './ModPreview';
 import ModsBrowserLocal from './ModsBrowserLocal';
 import ModsBrowserOnline from './ModsBrowserOnline';
+import ProfilesManagement from './ProfilesManagement';
 import SafeModeIndicator from './SafeModeIndicator';
 import Settings from './Settings';
 
@@ -86,6 +87,12 @@ function Panel() {
             element={<ContentWrapperWithOutlet key="settings" />}
           >
             <Route index element={<Settings />} />
+          </Route>
+          <Route
+            path="profiles"
+            element={<ContentWrapperWithOutlet key="profiles" />}
+          >
+            <Route index element={<ProfilesManagement />} />
           </Route>
           <Route
             path="about"

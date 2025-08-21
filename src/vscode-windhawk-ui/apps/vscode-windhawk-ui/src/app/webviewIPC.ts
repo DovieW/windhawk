@@ -47,6 +47,21 @@ import {
   UpdateModConfigReplyData,
   UpdateModRatingData,
   UpdateModRatingReplyData,
+  GetProfilesReplyData,
+  CreateProfileData,
+  CreateProfileReplyData,
+  DeleteProfileData,
+  DeleteProfileReplyData,
+  RenameProfileData,
+  RenameProfileReplyData,
+  SetActiveProfilesData,
+  SetActiveProfilesReplyData,
+  CaptureConfigToProfileData,
+  CaptureConfigToProfileReplyData,
+  ExportProfileData,
+  ExportProfileReplyData,
+  ImportProfileData,
+  ImportProfileReplyData,
 } from './webviewIPCMessages';
 
 // Message types:
@@ -536,6 +551,129 @@ export function useExitEditorMode<TContext extends Record<string, unknown>>(
     exitEditorMode: result.postMessage,
     exitEditorModePending: result.pending,
     exitEditorModeContext: result.context,
+  };
+}
+
+////////////////////////////////////////////////////////////
+// Profile operations.
+
+export function useGetProfiles<TContext extends Record<string, unknown>>(
+  handler: (data: GetProfilesReplyData, context?: TContext) => void
+) {
+  const result = usePostMessageWithReplyWithHandler<
+    NoData,
+    GetProfilesReplyData,
+    TContext
+  >('getProfiles', handler);
+  return {
+    getProfiles: result.postMessage,
+    getProfilesPending: result.pending,
+    getProfilesContext: result.context,
+  };
+}
+
+export function useCreateProfile<TContext extends Record<string, unknown>>(
+  handler: (data: CreateProfileReplyData, context?: TContext) => void
+) {
+  const result = usePostMessageWithReplyWithHandler<
+    CreateProfileData,
+    CreateProfileReplyData,
+    TContext
+  >('createProfile', handler);
+  return {
+    createProfile: result.postMessage,
+    createProfilePending: result.pending,
+    createProfileContext: result.context,
+  };
+}
+
+export function useDeleteProfile<TContext extends Record<string, unknown>>(
+  handler: (data: DeleteProfileReplyData, context?: TContext) => void
+) {
+  const result = usePostMessageWithReplyWithHandler<
+    DeleteProfileData,
+    DeleteProfileReplyData,
+    TContext
+  >('deleteProfile', handler);
+  return {
+    deleteProfile: result.postMessage,
+    deleteProfilePending: result.pending,
+    deleteProfileContext: result.context,
+  };
+}
+
+export function useRenameProfile<TContext extends Record<string, unknown>>(
+  handler: (data: RenameProfileReplyData, context?: TContext) => void
+) {
+  const result = usePostMessageWithReplyWithHandler<
+    RenameProfileData,
+    RenameProfileReplyData,
+    TContext
+  >('renameProfile', handler);
+  return {
+    renameProfile: result.postMessage,
+    renameProfilePending: result.pending,
+    renameProfileContext: result.context,
+  };
+}
+
+export function useSetActiveProfiles<TContext extends Record<string, unknown>>(
+  handler: (data: SetActiveProfilesReplyData, context?: TContext) => void
+) {
+  const result = usePostMessageWithReplyWithHandler<
+    SetActiveProfilesData,
+    SetActiveProfilesReplyData,
+    TContext
+  >('setActiveProfiles', handler);
+  return {
+    setActiveProfiles: result.postMessage,
+    setActiveProfilesPending: result.pending,
+    setActiveProfilesContext: result.context,
+  };
+}
+
+export function useCaptureConfigToProfile<TContext extends Record<string, unknown>>(
+  handler: (data: CaptureConfigToProfileReplyData, context?: TContext) => void
+) {
+  const result = usePostMessageWithReplyWithHandler<
+    CaptureConfigToProfileData,
+    CaptureConfigToProfileReplyData,
+    TContext
+  >('captureConfigToProfile', handler);
+  return {
+    captureConfigToProfile: result.postMessage,
+    captureConfigToProfilePending: result.pending,
+    captureConfigToProfileContext: result.context,
+  };
+}
+
+export function useExportProfile<TContext extends Record<string, unknown>>(
+  handler: (data: ExportProfileReplyData, context?: TContext) => void
+) {
+  const result = usePostMessageWithReplyWithHandler<
+    ExportProfileData,
+    ExportProfileReplyData,
+    TContext
+  >('exportProfile', handler);
+  return {
+    exportProfile: result.postMessage,
+    exportProfilePending: result.pending,
+    exportProfileContext: result.context,
+  };
+}
+
+export function useImportProfile<TContext extends Record<string, unknown>>(
+  handler: (data: ImportProfileReplyData, context?: TContext) => void
+) {
+  const result = usePostMessageWithReplyWithHandler<
+    ImportProfileData,
+    ImportProfileReplyData,
+    TContext
+  >('importProfile', handler);
+  return {
+    importProfile: result.postMessage,
+    importProfilePending: result.pending,
+    importProfileContext: result.context,
   };
 }
 

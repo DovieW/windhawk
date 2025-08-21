@@ -2,7 +2,7 @@ import 'prism-themes/themes/prism-vsc-dark-plus.css';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import 'react-diff-view/style/index.css';
 import { useTranslation } from 'react-i18next';
-import './App.css';
+import './app.css';
 import {
   AppUISettingsContextType,
   AppUISettingsContext,
